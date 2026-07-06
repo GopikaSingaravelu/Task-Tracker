@@ -1,4 +1,4 @@
-package com.tasktracker.backend;
+package com.tasktracker.backend.entity;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
