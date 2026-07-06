@@ -1,0 +1,14 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: tasktracker-mysql
+    environment:
+      MYSQL_DATABASE: tasktracker
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
