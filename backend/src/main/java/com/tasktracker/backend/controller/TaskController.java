@@ -1,57 +1,72 @@
 package com.tasktracker.backend.controller;
 
-import com.tasktracker.backend.entity.Task;
-import com.tasktracker.backend.entity.TaskPriority;
-import com.tasktracker.backend.entity.TaskStatus;
+import com.tasktracker.backend.dto.TaskRequest;
+import com.tasktracker.backend.entity.*;
 import com.tasktracker.backend.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/tasks")
+@RequestMapping("/api/tasks")
 public class TaskController {
 
-    private final TaskService service;
+    private final TaskService taskService;
 
-    public TaskController(TaskService service) {
-        this.service = service;
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     @GetMapping
     public Page<Task> getTasks(
             @RequestParam(required = false) TaskStatus status,
             @RequestParam(required = false) TaskPriority priority,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        return service.getTasks(status, priority, PageRequest.of(page, size));
+            Pageable pageable) {
+        return taskService.getTasks(status, priority, pageable);
     }
 
     @GetMapping("/{id}")
     public Task getTask(@PathVariable Long id) {
-        return service.getTaskById(id);
+        return taskService.getTaskById(id);
     }
 
     @PostMapping
-    public Task create(@RequestBody Task task) {
-        return service.createTask(task);
+    public ResponseEntity<Task> createTask(@Valid @RequestBody TaskRequest request) {
+        Task task = mapToEntity(request);
+        Task saved = taskService.createTask(task);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PutMapping("/{id}")
-    public Task update(@PathVariable Long id,
-                       @RequestBody Task task) {
-        return service.updateTask(id, task);
+    public Task updateTask(@PathVariable Long id, @Valid @RequestBody TaskRequest request) {
+        Task task = mapToEntity(request);
+        return taskService.updateTask(id, task);
     }
 
     @PatchMapping("/{id}/status")
-    public Task updateStatus(@PathVariable Long id,
-                             @RequestParam TaskStatus status) {
-        return service.updateStatus(id, status);
+    public Task updateStatus(@PathVariable Long id, @RequestParam TaskStatus status) {
+        return taskService.updateStatus(id, status);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.deleteTask(id);
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+        taskService.deleteTask(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    private Task mapToEntity(TaskRequest request) {
+        Task task = new Task();
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        if (request.getStatus() != null) task.setStatus(TaskStatus.valueOf(request.getStatus()));
+        if (request.getPriority() != null) task.setPriority(TaskPriority.valueOf(request.getPriority()));
+        task.setDueDate(request.getDueDate());
+        Project project = new Project();
+        project.setId(request.getProjectId());
+        task.setProject(project);
+        return task;
     }
 }

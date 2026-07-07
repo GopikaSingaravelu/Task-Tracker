@@ -2,28 +2,26 @@ package com.tasktracker.backend.controller;
 
 import com.tasktracker.backend.entity.Project;
 import com.tasktracker.backend.repository.ProjectRepository;
-import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/projects")
+@RequestMapping("/api/projects")
 public class ProjectController {
 
-    private final ProjectRepository repository;
+    private final ProjectRepository projectRepository;
 
-    public ProjectController(ProjectRepository repository) {
-        this.repository = repository;
+    public ProjectController(ProjectRepository projectRepository) {
+        this.projectRepository = projectRepository;
     }
 
     @GetMapping
     public List<Project> getAll() {
-        return repository.findAll();
+        return projectRepository.findAll();
     }
 
     @PostMapping
-    public Project create(@Valid @RequestBody Project project) {
-        return repository.save(project);
+    public Project create(@RequestBody Project project) {
+        return projectRepository.save(project);
     }
 }
