@@ -64,7 +64,15 @@ function App() {
 
       <ul>
         {tasks.map((t) => (
-          <li key={t.id}>
+          <li key={t.id} style={{
+      border: '1px solid #ccc',
+      borderRadius: '6px',
+      padding: '10px',
+      margin: '8px 0',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px'
+    }}>
             <b>{t.title}</b> — {t.status} — {t.priority}
             <select value={t.status} onChange={(e) => updateStatus(t.id, e.target.value)}>
               <option value="TODO">TODO</option>
